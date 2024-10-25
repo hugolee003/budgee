@@ -1,5 +1,6 @@
+// DashboardLayout.js
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import SideNav from "./_components/SideNav";
 import DashboardHeader from "./_components/DashboardHeader";
 import { db } from "@/utils/dbConfig";
@@ -11,6 +12,8 @@ import { useRouter } from "next/navigation";
 function DashboardLayout({ children }) {
   const { user } = useUser();
   const router = useRouter();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   useEffect(() => {
     user && checkUserBudgets();
   }, [user]);
@@ -25,14 +28,15 @@ function DashboardLayout({ children }) {
       router.replace("/dashboard/budgets");
     }
   };
+
   return (
-    <div>
-      <div className="fixed md:w-64 hidden md:block ">
-        <SideNav />
+    <div className="min-h-screen flex flex-col">
+      <div className="fixed top-0 left-0 w-full md:w-64 z-50">
+        <SideNav isOpen={isMobileMenuOpen} setIsOpen={setIsMobileMenuOpen} />
       </div>
-      <div className="md:ml-64 ">
-        <DashboardHeader />
-        {children}
+      <div className="md:ml-64 flex-1">
+        <DashboardHeader onMenuClick={() => setIsMobileMenuOpen(true)} />
+        <main className="p-4">{children}</main>
       </div>
     </div>
   );

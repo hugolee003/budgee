@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   LayoutGrid,
@@ -6,13 +6,16 @@ import {
   ReceiptText,
   ShieldCheck,
   CircleDollarSign,
-  TrendingUp,
-  TrendingDownIcon,
+  Menu,
+  X
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+
 function SideNav() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const menuList = [
     {
       id: 1,
@@ -38,18 +41,6 @@ function SideNav() {
       icon: ReceiptText,
       path: "/dashboard/expenses",
     },
-    // {
-    //   id: 2,
-    //   name: "Investments",
-    //   icon: TrendingUp,
-    //   path: "/dashboard/investments",
-    // },
-    // {
-    //   id: 2,
-    //   name: "Debts",
-    //   icon: TrendingDownIcon,
-    //   path: "/dashboard/debts",
-    // },
     {
       id: 4,
       name: "Upgrade",
@@ -57,48 +48,66 @@ function SideNav() {
       path: "/dashboard/upgrade",
     },
   ];
+
   const path = usePathname();
 
-  useEffect(() => {
-    console.log(path);
-  }, [path]);
   return (
-    <div className="h-screen p-5 border shadow-sm">
-      {/* <Image src={'/logo.svg'}
-        alt='logo'
-        width={160}
-        height={100}
-        /> */}
-      <div className="flex flex-row items-center">
-        {/* <Image src={"./chart-donut.svg"} alt="logo" width={40} height={25} /> */}
-        <span className="text-blue-800 font-bold text-xl">Budgee</span>
-      </div>
-      <div className="mt-5">
-        {menuList.map((menu, index) => (
-          <Link href={menu.path} key={index}>
-            <h2
-              className={`flex gap-2 items-center
-                    text-gray-500 font-medium
-                    mb-2
-                    p-4 cursor-pointer rounded-full
-                    hover:text-primary hover:bg-blue-100
-                    ${path == menu.path && "text-primary bg-blue-100"}
-                    `}
-            >
-              <menu.icon />
-              {menu.name}
-            </h2>
-          </Link>
-        ))}
-      </div>
-      <div
-        className="fixed bottom-10 p-5 flex gap-2
-            items-center"
+    <>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md md:hidden"
       >
-        <UserButton />
-        Profile
+        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Overlay for mobile */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        className={`fixed md:static h-screen p-5 border shadow-sm bg-white z-40
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} 
+          md:translate-x-0 transition-transform duration-300 ease-in-out
+          w-64`}
+      >
+        <div className="flex flex-row items-center">
+          <span className="text-blue-800 font-bold text-xl">Budgee</span>
+        </div>
+
+        <div className="mt-5">
+          {menuList.map((menu, index) => (
+            <Link 
+              href={menu.path} 
+              key={index}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <h2
+                className={`flex gap-2 items-center
+                  text-gray-500 font-medium
+                  mb-2 p-4 cursor-pointer rounded-full
+                  hover:text-primary hover:bg-blue-100
+                  ${path === menu.path && "text-primary bg-blue-100"}
+                `}
+              >
+                <menu.icon />
+                {menu.name}
+              </h2>
+            </Link>
+          ))}
+        </div>
+
+        <div className="absolute bottom-10 p-5 flex gap-2 items-center">
+          <UserButton />
+          <span>Profile</span>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
